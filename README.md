@@ -23,8 +23,9 @@ I used following opensource github project to set up bert embeddings for the sol
 4. You can use https://jsoneditoronline.org/ to visulize the results form result.json
 
 
-**Running the code**
+**Running the code**:
 use the file **legal_clustering.py**
+
 **using tff-idf**: uncomment: clusters = getClusters(line_list) (and comment: clusters = getBertClusters(line_list)) (line:195)
 **using bert**: uncomment: clusters = getBertClusters(line_list) (and comment: clusters = getClusters(line_list)) (line: 194)
 
