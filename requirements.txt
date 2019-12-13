@@ -1,0 +1,6 @@
+sklearn
+python-docx
+nltk
+gensim
+spacy
+json

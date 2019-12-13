@@ -18,10 +18,11 @@ There are 2 files result_tfidf.json and result_bert.json which contains the resu
 How to use BERT embeddings:
 I used following opensource github project to set up bert embeddings for the solution:
 1. Clone or download the git repo: https://github.com/UKPLab/sentence-transformers#Training
-2. Use the instractions to install the transformers by pip install -U sentence-transformers or pip install -e (using source)
+2. Use the instractions to install the transformers by pip install -U sentence-transformers or pip install -e . (using source)
 3. Copy the content of this directory in the home folder of the above repo and execute the code.
 4. You can use https://jsoneditoronline.org/ to visulize the results form result.json
 
+install the spacy en packedge: python -m spacy download en
 
 **Running the code**:
 use the file **legal_clustering.py**
