@@ -1,0 +1,15 @@
+Problem Statement:
+
+Many financial documents have different types of legal clauses. For example, clauses could look like “at least equal to the” or “would be greater than” or “In the event of any inconsistency” etcetera. There can be different clauses in different documents and many varieties of clauses. The goal of this task is to identify different groups/clusters of similar clauses in a single text document.
+
+ 
+
+Data:
+
+Attached is a contract document negotiated between two parties. You can demonstrate how your approach to extract the clauses works with this document. Also account for the fact that your algorithm would be fed another document for validation of the approach. 
+
+ 
+
+Code:
+
+You can use a programming language of your choice, but python would be preferred. You could upload your code to a public github repo and share the link with us.
