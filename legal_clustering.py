@@ -192,8 +192,11 @@ if __name__ == "__main__":
   line_list = data.splitlines( )
 
   clusters = getBertClusters(line_list)
-  r = json.dumps(clusters)
-  clusters_json = json.loads(r)
+  #clusters = getClusters(line_list)
+  
+
+  #r = json.dumps(clusters)
+  #clusters_json = json.loads(r)
   
   with open('result.json', 'w') as fp:
     json.dump(clusters, fp)
