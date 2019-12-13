@@ -33,15 +33,17 @@ Run the code by using: *python3 legal_clustering.py*
 
 use the **python3** to run the code and download the depedencies
 
-**If you have trouble using bert embedings(it will download the firstime), follow thses instructions from the mentioned git-repo:** 
-Clustering
-examples/application_clustering.py depicts an example to cluster similar sentences based on their sentence embedding similarity.
+**If you have trouble using bert embedings(it will download the firstime), follow these instructions from the mentioned git-repo:**
+
+**Clustering**:
+**examples/application_clustering.py** depicts an example to cluster similar sentences based on their sentence embedding similarity.
 
 As before, we first compute an embedding for each sentence:
 
 embedder = SentenceTransformer('bert-base-nli-mean-tokens')
 
 # Corpus with example sentences
+
 corpus = ['A man is eating a food.',
           'A man is eating a piece of bread.',
           'A man is eating pasta.',
