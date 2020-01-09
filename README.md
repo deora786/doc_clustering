@@ -4,12 +4,27 @@ Clustering using tfidf and bert and Opitics on documents (finding similar clause
 Idea here is to use clustering to put togather similar sentences, so we will have clusters with the clauses(where all the similar will be together). We can manully filter-out these out. This solution can furthher refined by better text cleaning and preprocessing.
 I uesd OPTICS(with min elements = 3) instead of the k-means so that we do not have to choose the number of clusters
 
+
+**TO USE THE STANFORD LIB**
+1. download the stanfordCoreNLP from stanford site or do following:(link: https://github.com/nltk/nltk/wiki/Stanford-CoreNLP-API-in-NLTK)
+wget http://nlp.stanford.edu/software/stanford-corenlp-full-2018-02-27.zip
+unzip stanford-corenlp-full-2018-02-27.zip
+cd stanford-corenlp-full-2018-02-27
+2. use following command to run the stanford server:
+java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer \
+-preload tokenize,ssplit,pos,lemma,ner,parse,depparse \
+-status_port 9000 -port 9000 -timeout 15000 & 
+3. then run the solution file to run the code
+
 Solution:
 1. Breaked the doc into sentences on the basis of the splitsentence( ).
 2. Cleaned the doc a bit using standerd libs
-3. There were 2 representations used a) TF-IDF and b) BERT
-4. OPTICS clustering(modified version of the DBSCAN) for clustering to make the output cluster numbers dynamic
-5. Results were saved in **result.json**
+3. User stanford tree parser to get tree structure of the sentences
+4. Extracted sentences which had ADJP (Adjective phrases in them)
+5. Used these extrated clauses for clustering
+6. There were 2 representations used a) TF-IDF and b) BERT
+7. OPTICS clustering(modified version of the DBSCAN) for clustering to make the output cluster numbers dynamic
+8. Results were saved in **result.json**
 
 Result comparison:
 There are 2 files result_tfidf.json and result_bert.json which contains the results of both approach, an by manually looking at the results it can directly be seen that the results of the BERT representation is better.

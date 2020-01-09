@@ -26,15 +26,53 @@ from gensim.models import CoherenceModel
 import spacy
 from nltk.corpus import stopwords
 import json
+from nltk.parse import CoreNLPParser
+
 stop_words = stopwords.words('english')
 embedder = SentenceTransformer('bert-base-nli-mean-tokens')
+
+
+def stanford_parser(text_list):
+    parser = CoreNLPParser(url='http://localhost:9000')
+    sorted_list = []
+    tt = 0
+    nn = 0
+    dd = 0
+    for text in text_list:
+        try:
+            if len(text.split())<5:
+                tt +=1
+                continue
+            else:
+                #print (text)
+                #break
+                sentences = list(parser.parse(text.split()))
+                #print (sentences)
+                #print("########################")
+                #print(sentences)
+                st = str(sentences)
+                #print(st)
+                if 'ADJP' in st:
+                    sorted_list.append(text)
+                else:
+                    nn+=1
+        except Exception as e:
+            dd +=1
+            print("ERROR")
+
+    print("***********************")
+    print(tt)
+    print(nn)
+    print("error count: " +str(dd))
+    return sorted_list
+
 
 # Define functions for stopwords, bigrams, trigrams and lemmatization
 def remove_stopwords(texts):
     return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
 
 
-def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):
+def lemmatization(texts):
     # Initialize spacy 'en' model, keeping only tagger component (for efficiency)
     # python3 -m spacy download en
     nlp = spacy.load('en', disable=['parser', 'ner'])
@@ -94,36 +132,47 @@ def preProcess(data):
 
     
 
-    # Do lemmatization keeping only noun, adj, vb, adv
-    data_lemmatized = lemmatization(data_words_nostops, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
+    # Do lemmatization
+    data_lemmatized = lemmatization(data_words_nostops)
     return data_lemmatized
 
 def cluster_dictionary(doc,cluster_labels):
-  labels = np.unique(cluster_labels)
-  clustering_dict = dict()
-  for label in labels:
-    result = np.where(cluster_labels == label)
-    indices = result[0]
-    clustering_dict[label] = []
-    for index in indices:
-      clustering_dict[label].append(doc[index])
-  del clustering_dict[-1]
-  return clustering_dict
+    labels = np.unique(cluster_labels)
+    clustering_dict = dict()
+    print(type(doc))
+    print(len(doc))
+
+    for label in labels:
+        if label == -1:
+            # removing outliers
+            continue
+        result = np.where(cluster_labels == label)
+        indices = result[0]
+        clustering_dict[label] = []
+        for index in indices:
+            print (index)
+            print(label)
+            clustering_dict[label].append(doc[index])
+            try:
+                del clustering_dict[-1]
+            except Exception as e:
+                print("Empty string")
+    return clustering_dict
 
 
 def getClusters(doc):
-  processed_doc = [' '.join(text) for text in preProcess(doc)]
-  tfidf = TfidfVectorizer()
-  vectorizer = tfidf.fit_transform(processed_doc)
-  # clusters = dbscan_clustering(doc, vectorizer, 0.75,3)
-  clusters = optics_clustering(doc,vectorizer)
-  final_clusters = {}
+    processed_doc = [' '.join(text) for text in preProcess(doc)]
+    tfidf = TfidfVectorizer()
+    vectorizer = tfidf.fit_transform(processed_doc)
+    # clusters = dbscan_clustering(doc, vectorizer, 0.75,3)
+    clusters = optics_clustering(doc,vectorizer)
+    final_clusters = {}
 
-  # Removing duplicacy in clusters
-  for key in clusters:
-    final_clusters[str(key)] = list(set(clusters[key]))
+    # Removing duplicacy in clusters
+    for key in clusters:
+        final_clusters[str(key)] = list(set(clusters[key]))
 
-  return final_clusters
+    return final_clusters
 
 def getBertClusters(doc):
   #processed_doc = [' '.join(text) for text in preProcess(doc)]
@@ -143,31 +192,31 @@ def getBertClusters(doc):
 
 
 def optics_clustering(doc,vectorizer):
-  cluster = OPTICS(min_samples=3).fit(vectorizer.toarray())
-  return cluster_dictionary(doc,cluster.labels_)
+    cluster = OPTICS(min_samples=3).fit(vectorizer.toarray())
+    return cluster_dictionary(doc,cluster.labels_)
 
 def optics_bert_clustering(doc,vectorizer):
-  cluster = OPTICS(min_samples=3).fit(vectorizer)
-  return cluster_dictionary(doc,cluster.labels_)
+    cluster = OPTICS(min_samples=2).fit(vectorizer)
+    return cluster_dictionary(doc,cluster.labels_)
 
 
 def dbscan_clustering(doc,vectorizer,epsilon,min_samples):
-  cluster = DBSCAN(eps=epsilon, min_samples=min_samples).fit(vectorizer)
-  return cluster_dictionary(doc,cluster.labels_)
+    cluster = DBSCAN(eps=epsilon, min_samples=min_samples).fit(vectorizer)
+    return cluster_dictionary(doc,cluster.labels_)
 
 
 def ch_format(dict_):
-  intent_data = []
-  i=0
-  for topic,intent in dict_.items():
-    temp = {}
-    temp['intent_name'] = topic
-    temp['intent_number'] = i
-    temp['text'] = intent
-    temp['response'] = ""
-    i=i+1
-    intent_data.append(temp)
-  return intent_data
+    intent_data = []
+    i=0
+    for topic,intent in dict_.items():
+        temp = {}
+        temp['intent_name'] = topic
+        temp['intent_number'] = i
+        temp['text'] = intent
+        temp['response'] = ""
+        i=i+1
+        intent_data.append(temp)
+    return intent_data
 
 
 def getText(filename):
@@ -180,27 +229,30 @@ def getText(filename):
 
 
 if __name__ == "__main__":
-  start_time = time.time()
+    start_time = time.time()
 
-  print("-- starting the processing --")
+    print("-- starting the processing --")
 
-  filename = "legal_file.docx"
+    filename = "legal_file.docx"
 
-  data = getText(filename)
+    data = getText(filename)
 
-  ## splitting in lines
-  line_list = data.splitlines( )
+    ## splitting in lines    
+    line_list = data.splitlines( )
 
-  clusters = getBertClusters(line_list)
-  #clusters = getClusters(line_list)
-  
+    ## sorting the lines if they have ADJP(adjective phrase) 
+    sorted_list = stanford_parser(line_list)
 
-  #r = json.dumps(clusters)
-  #clusters_json = json.loads(r)
-  
-  with open('result.json', 'w') as fp:
-    json.dump(clusters, fp)
+    clusters = getBertClusters(sorted_list)
+    #clusters = getClusters(sorted_list)
 
-  #print(clusters_json)
+    r = json.dumps(clusters)
 
-  print("--- %s seconds ---" % (time.time() - start_time))
+    clusters_json = json.loads(r)
+
+    with open('result.json', 'w') as fp:
+        json.dump(clusters, fp)
+
+    #print(clusters_json)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
